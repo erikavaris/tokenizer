@@ -3,6 +3,7 @@ import nltk
 from nltk.tokenize.casual import remove_handles, reduce_lengthening, _str_to_unicode, _replace_html_entities # EMOTICONS, EMOTICON_RE
 import re
 import reg
+import unicodedata
 
 #urls - nltk version
 URLS = r"""         # Capture 1: entire matched URL
@@ -48,8 +49,7 @@ URLS = r"""         # Capture 1: entire matched URL
   )
 """
 
-#my url version
-#URLS = r"""(((http(s?):\/\/|www)|\w+\.(\w{2-3}))([\w\!#$&-;=\?\-\[\]~]|%[0-9a-fA-F]{2})+)"""
+
 
 #my emoticons, borrowed & expanded from https://github.com/g-c-k/idiml/blob/master/predict/src/main/resources/data/emoticons.txt
 
@@ -68,7 +68,8 @@ TWITTER_USER = r"""(?:@\w+)"""
 TWITTER_USER_RE = re.compile(TWITTER_USER, re.UNICODE)
 HASHTAG_RE = re.compile(HASHTAG, re.UNICODE)
 HASH_RE = re.compile(r'#(?=\w+)', re.UNICODE)
-URL_RE = re.compile(URLS, re.UNICODE)
+#my url version, nltk's doesn't work for separate regexp
+URL_RE = re.compile(r"""((https?:\/\/|www)|\w+\.(\w{2-3}))([\w\!#$&-;=\?\-\[\]~]|%[0-9a-fA-F]{2})+""", re.UNICODE)
 EMOTICON_RE = re.compile(r"""(%s)""" % "|".join(EMOTICONS), re.UNICODE)
 
 # more regular expressions for word compilation, borrowed from nltk
@@ -141,13 +142,21 @@ class TweetTokenizer():
         self.preserve_case = preserve_case
         self.preserve_handles = preserve_handles
         self.preserve_hashes = preserve_hashes
-        self.regularize = regularize # TODO
+        self.regularize = regularize
         self.R = reg.Regularizer()
 
         self.preserve_len = preserve_len
-        self.preserve_emoji = preserve_emoji # TODO
+        self.preserve_emoji = preserve_emoji
         self.preserve_url = preserve_url
         self.WORD_RE = re.compile(r"""(%s)""" % "|".join(TWITTER_REGEXPS), re.VERBOSE | re.I | re.UNICODE)
+
+    def strip_emoji(self, text):
+        '''Take out emoji. Returns doc string.
+        ::param text:: tweet
+        ::type doc:: str
+        '''
+        text = ''.join(c for c in text if unicodedata.category(c) != 'So') # almost works perfectly
+        return text
 
     def tokenize(self, text):
         '''Casual speech tokenizer wrapper function, closely based on nltk's version.
@@ -161,115 +170,20 @@ class TweetTokenizer():
         if not self.preserve_hashes:
             text = re.sub(HASH_RE, '', text)
         if not self.preserve_url:
-            text = re.sub(URLS, ' ', text)
+            text = re.sub(URL_RE, ' ', text)
         if not self.preserve_len:
             text = reduce_lengthening(text)
         if self.regularize:
             text = self.R.regularize(text)
+        if not self.preserve_emoji:
+            text = self.strip_emoji(text)
         words = self.WORD_RE.findall(text)
         if not self.preserve_case:
             words = list(map((lambda x : x if EMOTICON_RE.search(x) else
                               x.lower()), words))
         return words
 
-    def infinitives(self, text):
-        '''Separate infinitive contractions.
-        Returns text string.
-        ::param text:: tweet
-        ::type text:: str
-        '''
 
-        if re.findall(GOTTA, text):
-            text = re.sub(GOTTA, 'got to', text)
-        if re.findall(GONNA, text):
-            text = re.sub(GONNA, 'going to', text)
-        if re.findall(HAFTA, text):
-            text = re.sub(HAFTA, 'have to', text)
-        if re.findall(WANNA, text):
-            text = re.sub(WANNA, 'want to', text)
 
-        return text
 
-    def copula_contracts(self, text):
-        '''Un-contract copulas. Returns text string.
-        ::param text:: tweet
-        ::type text:: str
-        '''
-        cop_matches = re.findall(CONTRACTIONS_COPULA, text)
-        if len(cop_matches) >= 1:
-            for match in cop_matches:
-                if match.lower() in ["i'm", "im"]:
-                    replace_with = "I am"
-                elif match.lower() in ["you're", "youre"]:
-                    replace_with = "you are"
-                elif match.lower() in ["they're", "theyre"]:
-                    replace_with = "they are"
-                elif match.lower() == "we're":
-                    replace_with = "we are"
-                else:
-                    replace_with = match.split("'")[0] + ' is'
-                text = re.sub(match, replace_with, text)
-
-        return text
-
-    def neg_contracts(self, text):
-        '''Un-contract negatives. Returns text string.
-        ::param text:: tweet
-        ::type text:: str
-        '''
-        neg_matches = re.findall(CONTRACTIONS_NEG, text)
-        if len(neg_matches) >= 1:
-            # Get substrings, and replace with verb + not
-            for match in neg_matches:
-                if match.lower() in ["won't", "wont"]:
-                    replace_with = "will not"
-                elif match.lower() in ['cannot', "can't"]:
-                    replace_with = 'can not'
-                elif match.lower() in ["shan't", "shant"]:
-                    replace_with = 'shall not'
-                else:
-                    splitting_neg = re.compile(r"n't", re.I)
-                    replace_with = re.split(splitting_neg, match)[0] + " not"
-                text = re.sub(match, replace_with, text)
-        return text
-
-    def fut_contracts(self, text):
-        '''Un-contract futures. Returns text string.
-        ::param text:: tweet
-        ::type text:: str
-        '''
-        fut_matches = re.findall(CONTRACTIONS_FUT, text)
-        if len(fut_matches) >= 1:
-            # Get substrings and replace with pro + will
-            for match in fut_matches:
-                replace_with = match.split("'")[0] + ' will'
-                text = re.sub(match, replace_with, text)
-        return text
-
-    def mod_contracts(self, text):
-        '''Un-contract modals. Returns text string.
-        ::param text:: tweet
-        ::type text:: str
-        '''
-        mod_matches = re.findall(CONTRACTIONS_MOD, text)
-        if len(mod_matches) >= 1:
-            # Get substrings and replace with pro + would
-            for match in mod_matches:
-                replace_with = match.split("'")[0] + ' would'
-                text = re.sub(match, replace_with, text)
-
-        return text
-
-    def have_contracts(self, text):
-        '''Un-contract futures. Returns text string.
-        ::param text:: tweet
-        ::type text:: str
-        '''
-        have_matches = re.findall(CONTRACTIONS_HAVE, text)
-        if len(have_matches) >= 1:
-            # Get substrings and replace with pro + will
-            for match in have_matches:
-                replace_with = match.split("'")[0] + ' have'
-                text = re.sub(match, replace_with, text)
-        return text
 

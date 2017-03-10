@@ -38,7 +38,7 @@ class TestTokenizerDefaults(unittest.TestCase):
 
     def test_arrow(self):
         text = 'a tweet with an --> arrow'
-        actual = self.T.tokenize(test_arrow)
+        actual = self.T.tokenize(text)
         expected = ['a', 'tweet', 'with', 'an', '-->', 'arrow']
         self.assertEqual(actual, expected)
 
@@ -65,7 +65,7 @@ class TestTokenizerRegularizations(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_url_removal(self):
-        T = tokenizer.TweetTokenizer(preserve_html=False)
+        T = tokenizer.TweetTokenizer(preserve_url=False)
         text = 'this is a url https://t.co/1234_MOD tweet'
         actual = T.tokenize(text)
         expected = ['this', 'is', 'a', 'url', 'tweet']
@@ -82,7 +82,21 @@ class TestTokenizerRegularizations(unittest.TestCase):
         T = tokenizer.TweetTokenizer(preserve_len=False)
         text = 'This is a loooooong tweettttt'
         actual = T.tokenize(text)
-        expected = ['This is a looong', 'tweettt']
+        expected = ['This', 'is', 'a', 'looong', 'tweettt']
+        self.assertEqual(actual, expected)
+
+    def test_regularization(self):
+        T = tokenizer.TweetTokenizer(regularize=True)
+        text = "I'd've had to figure this out"
+        actual = T.tokenize(text)
+        expected = ['I', 'would', 'have', 'had', 'to', 'figure', 'this', 'out']
+        self.assertEqual(actual, expected)
+
+    def test_emoji(self):
+        T = tokenizer.TweetTokenizer(preserve_emoji=False)
+        text = "This is a tweet with😊" #no space between text and emoji
+        actual = T.tokenize(text)
+        expected = ['This', 'is', 'a', 'tweet', 'with']
         self.assertEqual(actual, expected)
 
 
