@@ -9,7 +9,8 @@ Some unit tests are included for the regularizer and tokenizer scripts.
 
 In the default (no regularization or normalization):
 
-```import tokenizer
+```
+import tokenizer
 T = tokenizer.TweetTokenizer()
 
 tweet = "Hey @NLPer! This is a #NLProc tweet :-D"
@@ -22,7 +23,8 @@ print(tokens)
 
 Strip handles, strip hash symbol, lowercase, take out urls:
 
-```import tokenizer
+```
+import tokenizer
 T = tokenizer.TweetTokenizer(preserve_handles=False, preserve_hashes=False, preserve_case=False, preserve_url=False)
 
 tweet = "Hey @NLPer! This is a #NLProc tweet :-D http://www.somelink.com"
@@ -35,7 +37,8 @@ print(tokens)
 
 Regularize common contractions:
 
-```import tokenizer
+```
+import tokenizer
 T = tokenizer.TweetTokenizer(regularize=True)
 
 tweet = "Swear im gonna push this soon"
