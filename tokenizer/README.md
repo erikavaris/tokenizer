@@ -47,6 +47,22 @@ T.tokenize(tweet)
 ['Swear', 'I', 'am', 'going', 'to', 'push', 'this', 'soon']
 ```
 
+## Reddit version
+
+A version of the tokenizer sensitive to Reddit usernames is also provided.
+
+```
+import tokenizer
+R = tokenizer.RedditTokenizer()
+
+text = "Hey u/NLPer! This is a #NLProc message."
+R.tokenize(text)
+
+['Hey', 'u/NLPer', '!', 'This', 'is', 'a', '#NLProc', 'message', '.']
+```
+
+
+
 #TODO:
 - Reddit version
 - Turn into installable module (add setup.py etc)
