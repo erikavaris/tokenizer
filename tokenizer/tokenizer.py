@@ -98,19 +98,10 @@ WORDS = r"""
     """
 TWITTER_REGEXPS = [URLS, PHONE] + EMOTICONS + [HTML_TAGS, ASCII_ARROWS, TWITTER_USER, HASHTAG, EMAILS, WORDS]
 
-# regexps for regularization: for now, hard-coded
-# TODO: probabilistic way of recognizing contractions without ',
-# determining what T word is actually intended, etc.
-CONTRACTIONS_NEG = re.compile(r"cannot\b|\w+n't\b|shant|wont", re.I) #add cant? technically a separate word
-CONTRACTIONS_FUT = re.compile(r"\b(i'll|he'll|she'll|you'll|youll|we'll)\b", re.I) #ill, hell, shell, well
-# assuming "'d" is modal "should/would" for now; "had" also possible but not coded here
-CONTRACTIONS_MOD = re.compile(r"\b(i'd|you'd|youd|he'd|she'd|we'd)\b", re.I) #id, hed, shed, wed
-CONTRACTIONS_COPULA = re.compile(r"\b(i'm|im|you're|youre|we're|they're|theyre|he's|hes|shes|she's|it's)\b", re.I) #were, its
-CONTRACTIONS_HAVE = re.compile(r"\w+'ve\b", re.I)
-GOTTA = re.compile(r'\bgotta\b', re.I)
-GONNA = re.compile(r'\bgonna\b', re.I)
-HAFTA = re.compile(r'\bhafta\b', re.I)
-WANNA = re.compile(r'\bwanna\b', re.I)
+REDDIT_USER = r"(u\/\w+)"
+REDDIT_USER_RE = re.compile(REDDIT_USER, flags=re.UNICODE)
+
+REDDIT_REGEXPS = [URLS, PHONE] + EMOTICONS + [HTML_TAGS, ASCII_ARROWS, REDDIT_USER, HASHTAG, EMAILS, WORDS]
 
 class TweetTokenizer():
 
@@ -143,7 +134,8 @@ class TweetTokenizer():
         self.preserve_handles = preserve_handles
         self.preserve_hashes = preserve_hashes
         self.regularize = regularize
-        self.R = reg.Regularizer()
+        if self.regularize:
+            self.R = reg.Regularizer()
 
         self.preserve_len = preserve_len
         self.preserve_emoji = preserve_emoji
@@ -183,7 +175,54 @@ class TweetTokenizer():
                               x.lower()), words))
         return words
 
+class RedditTokenizer():
 
+    def __init__(self, preserve_case=True, preserve_handles=True, preserve_hashes=True, regularize=False, preserve_len=True, preserve_emoji=True, preserve_url=True):
+
+        self.preserve_case = preserve_case
+        self.preserve_handles = preserve_handles
+        self.preserve_hashes = preserve_hashes
+        self.regularize = regularize
+        if self.regularize:
+            self.R = reg.Regularizer()
+
+        self.preserve_len = preserve_len
+        self.preserve_emoji = preserve_emoji
+        self.preserve_url = preserve_url
+        self.WORD_RE = re.compile(r"""(%s)""" % "|".join(REDDIT_REGEXPS), re.VERBOSE | re.I | re.UNICODE)
+
+    def strip_emoji(self, text):
+        '''Take out emoji. Returns doc string.
+        ::param text:: tweet
+        ::type doc:: str
+        '''
+        text = ''.join(c for c in text if unicodedata.category(c) != 'So') # almost works perfectly
+        return text
+
+    def tokenize(self, text):
+        '''Casual speech tokenizer wrapper function for Reddit, closely based on nltk's version.
+        Returns a list of words.
+        ::param text:: reddit text
+        ::type text:: str
+        '''
+        text = _replace_html_entities(text)
+        if not self.preserve_handles:
+            text = re.sub(REDDIT_USER_RE, ' ', text)
+        if not self.preserve_hashes:
+            text = re.sub(HASH_RE, '', text)
+        if not self.preserve_url:
+            text = re.sub(URL_RE, ' ', text)
+        if not self.preserve_len:
+            text = reduce_lengthening(text)
+        if self.regularize:
+            text = self.R.regularize(text)
+        if not self.preserve_emoji:
+            text = self.strip_emoji(text)
+        words = self.WORD_RE.findall(text)
+        if not self.preserve_case:
+            words = list(map((lambda x : x if EMOTICON_RE.search(x) else
+                              x.lower()), words))
+        return words
 
 
 
