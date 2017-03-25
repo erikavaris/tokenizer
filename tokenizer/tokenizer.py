@@ -54,7 +54,7 @@ URLS = r"""         # Capture 1: entire matched URL
 #my emoticons, borrowed & expanded from https://github.com/g-c-k/idiml/blob/master/predict/src/main/resources/data/emoticons.txt
 
 EMOTICONS = []
-with open('emoticons.txt', 'r') as f:
+with open('./emoticons.txt', 'r') as f:
     for line in f:
         item = line.rstrip('\n')
         item = re.escape(item)
