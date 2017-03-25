@@ -5,12 +5,20 @@ Written in Python 3. Heavily based on nltk, but with a few more features added.
 
 Some unit tests are included for the regularizer and tokenizer scripts.
 
-# Usage
+## To Install
+
+Easy peasy, lemon squeezy. (I checked in a virtualenv, and it worked!).
+
+```
+pip install git+https://github.com/erikavaris/tokenizer.git
+```
+
+## Usage
 
 In the default (no regularization or normalization):
 
 ```
-import tokenizer
+from tokenizer import tokenizer
 T = tokenizer.TweetTokenizer()
 
 tweet = "Hey @NLPer! This is a #NLProc tweet :-D"
@@ -24,7 +32,7 @@ print(tokens)
 Strip handles, strip hash symbol, lowercase, take out urls:
 
 ```
-import tokenizer
+from tokenizer import tokenizer
 T = tokenizer.TweetTokenizer(preserve_handles=False, preserve_hashes=False, preserve_case=False, preserve_url=False)
 
 tweet = "Hey @NLPer! This is a #NLProc tweet :-D http://www.somelink.com"
@@ -38,11 +46,13 @@ print(tokens)
 Regularize common contractions:
 
 ```
-import tokenizer
+from tokenizer import tokenizer
 T = tokenizer.TweetTokenizer(regularize=True)
 
 tweet = "Swear im gonna push this soon"
-T.tokenize(tweet)
+tokens = T.tokenize(tweet)
+
+print(tokens)
 
 ['Swear', 'I', 'am', 'going', 'to', 'push', 'this', 'soon']
 ```
@@ -52,11 +62,13 @@ T.tokenize(tweet)
 A version of the tokenizer sensitive to Reddit usernames is also provided.
 
 ```
-import tokenizer
+from tokenizer import tokenizer
 R = tokenizer.RedditTokenizer()
 
 text = "Hey u/NLPer! This is a #NLProc message."
-R.tokenize(text)
+tokens = R.tokenize(text)
+
+print(tokens)
 
 ['Hey', 'u/NLPer', '!', 'This', 'is', 'a', '#NLProc', 'message', '.']
 ```

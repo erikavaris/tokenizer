@@ -66,9 +66,11 @@ with open(EMOTICONS_FILE, 'r') as f:
 # Twitter specific:
 HASHTAG = r"""(?:\#\w+)"""
 TWITTER_USER = r"""(?:@\w+)"""
+REDDIT_USER = r"(?:\/?u\/\w+)"
 
 #separately compiled regexps
 TWITTER_USER_RE = re.compile(TWITTER_USER, re.UNICODE)
+REDDIT_USER_RE = re.compile(REDDIT_USER, flags=re.UNICODE)
 HASHTAG_RE = re.compile(HASHTAG, re.UNICODE)
 HASH_RE = re.compile(r'#(?=\w+)', re.UNICODE)
 #my url version, nltk's doesn't work for separate regexp
@@ -100,9 +102,6 @@ WORDS = r"""
     (?:\S)                         # Everything else that isn't whitespace.
     """
 TWITTER_REGEXPS = [URLS, PHONE] + EMOTICONS + [HTML_TAGS, ASCII_ARROWS, TWITTER_USER, HASHTAG, EMAILS, WORDS]
-
-REDDIT_USER = r"(?:u\/\w+)"
-REDDIT_USER_RE = re.compile(REDDIT_USER, flags=re.UNICODE)
 
 REDDIT_REGEXPS = [URLS, PHONE] + EMOTICONS + [HTML_TAGS, ASCII_ARROWS, REDDIT_USER, HASHTAG, EMAILS, WORDS]
 
