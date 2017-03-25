@@ -1,11 +1,11 @@
-#Tokenizer
+# Tokenizer
 
 A tokenizer adapted for Twitter and other casual speech, with some regularization/normalization features.
 Written in Python 3. Heavily based on nltk, but with a few more features added.
 
 Some unit tests are included for the regularizer and tokenizer scripts.
 
-#Usage
+# Usage
 
 In the default (no regularization or normalization):
 
@@ -62,7 +62,3 @@ R.tokenize(text)
 ```
 
 
-
-#TODO:
-- Reddit version
-- Turn into installable module (add setup.py etc)
