@@ -2,7 +2,7 @@
 import nltk
 from nltk.tokenize.casual import remove_handles, reduce_lengthening, _str_to_unicode, _replace_html_entities # EMOTICONS, EMOTICON_RE
 import re
-import reg
+from .reg import Regularizer
 import unicodedata
 
 #urls - nltk version
@@ -135,7 +135,7 @@ class TweetTokenizer():
         self.preserve_hashes = preserve_hashes
         self.regularize = regularize
         if self.regularize:
-            self.R = reg.Regularizer()
+            self.R = Regularizer()
 
         self.preserve_len = preserve_len
         self.preserve_emoji = preserve_emoji
