@@ -4,6 +4,9 @@ from nltk.tokenize.casual import remove_handles, reduce_lengthening, _str_to_uni
 import re
 from .reg import Regularizer
 import unicodedata
+import pkg_resources
+
+EMOTICONS_FILE = pkg_resources.resource_filename('tokenizer', 'data/emoticons.txt')
 
 #urls - nltk version
 URLS = r"""         # Capture 1: entire matched URL
@@ -54,7 +57,7 @@ URLS = r"""         # Capture 1: entire matched URL
 #my emoticons, borrowed & expanded from https://github.com/g-c-k/idiml/blob/master/predict/src/main/resources/data/emoticons.txt
 
 EMOTICONS = []
-with open('./emoticons.txt', 'r') as f:
+with open(EMOTICONS_FILE, 'r') as f:
     for line in f:
         item = line.rstrip('\n')
         item = re.escape(item)
