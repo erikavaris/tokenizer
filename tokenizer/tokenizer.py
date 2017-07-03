@@ -63,10 +63,11 @@ with open(EMOTICONS_FILE, 'r') as f:
         item = re.escape(item)
         EMOTICONS.append(item)
 
-# Twitter specific:
+# Twitter & Reddit specific:
 HASHTAG = r"""(?:\#\w+)"""
 TWITTER_USER = r"""(?:@\w+)"""
 REDDIT_USER = r"(?:\/?u\/\w+)"
+REDDIT_SUBREDDIT = r"(?:\/?r\/\w+)"
 
 #separately compiled regexps
 TWITTER_USER_RE = re.compile(TWITTER_USER, re.UNICODE)
@@ -103,7 +104,7 @@ WORDS = r"""
     """
 TWITTER_REGEXPS = [URLS, PHONE] + EMOTICONS + [HTML_TAGS, ASCII_ARROWS, TWITTER_USER, HASHTAG, EMAILS, WORDS]
 
-REDDIT_REGEXPS = [URLS, PHONE] + EMOTICONS + [HTML_TAGS, ASCII_ARROWS, REDDIT_USER, HASHTAG, EMAILS, WORDS]
+REDDIT_REGEXPS = [URLS, PHONE] + EMOTICONS + [HTML_TAGS, ASCII_ARROWS, REDDIT_USER, REDDIT_SUBREDDIT, HASHTAG, EMAILS, WORDS]
 
 class TweetTokenizer():
 
