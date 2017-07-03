@@ -58,9 +58,9 @@ print(tokens)
 ```
 
 ## Reddit version
-
-A version of the tokenizer sensitive to Reddit usernames is also provided.
-Will work with either the `/u/name` or `u/name` format.
+rr
+A version of the tokenizer sensitive to Reddit usernames and subreddit is also provided.
+Will work with either the `/u/name` or `u/name` and `/r/name` or `r/name` format.
 
 ```
 from tokenizer import tokenizer

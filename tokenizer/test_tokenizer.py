@@ -1,10 +1,12 @@
 import unittest
 import tokenizer
 
+
 class TestTokenizerDefaults(unittest.TestCase):
 
     def setUp(self):
         self.T = tokenizer.TweetTokenizer()
+        self.redditT = tokenizer.RedditTokenizer()
 
     def test_emoticon(self):
         text = 'this is a tweet with kitty =^^= emoticon'
@@ -46,6 +48,18 @@ class TestTokenizerDefaults(unittest.TestCase):
         text = 'a tweet at @some_handle somewhere'
         actual = self.T.tokenize(text)
         expected = ['a', 'tweet', 'at', '@some_handle', 'somewhere']
+        self.assertEqual(actual, expected)
+
+    def test_reddit_user(self):
+        text = "reddit with user u/reddit-name mention"
+        actual = self.redditT.tokenize(text)
+        expected = ['reddit', 'with', 'user', 'u/reddit-name', 'mention']
+        self.assertEqual(actual, expected)
+
+    def test_reddit_subreddit(self):
+        text = "reddit with r/subreddit mention"
+        actual = self.redditT.tokenize(text)
+        expected = ['reddit', 'with', 'r/subreddit', 'mention']
         self.assertEqual(actual, expected)
 
 class TestTokenizerRegularizations(unittest.TestCase):
